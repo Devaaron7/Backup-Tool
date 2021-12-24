@@ -1,4 +1,4 @@
-from guizero import App, Box, PushButton, TextBox
+from guizero import App, Box, PushButton, TextBox, Picture
 from tkinter.filedialog import askopenfilenames, askdirectory
 
 
@@ -16,7 +16,11 @@ def main():
     
     app = App(title="Backup Tool", width=500, height=250, bg="white")
     
+    
+    
     box = Box(app)
+    
+    save_gif = Picture(box, image="./src/save1.gif" )
     
     choose_hdd = PushButton(app, text="Select Backup Destination", align="left")
     
