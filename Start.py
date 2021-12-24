@@ -8,7 +8,7 @@ def main():
     def add_folder1():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         folders_to_copy.append(folder_selection)
-        dir_1.value = folder_selection
+        dir_1.value = short_file_path(folder_selection)
         dir_2.show()
         dir_2.disable()
         select_dir_1._command = add_folder2
@@ -18,7 +18,7 @@ def main():
     def add_folder2():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         folders_to_copy.append(folder_selection)
-        dir_2.value = folder_selection
+        dir_2.value = short_file_path(folder_selection)
         dir_3.show()
         dir_3.disable()
         print(folders_to_copy)
@@ -27,7 +27,7 @@ def main():
     def add_folder3():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         folders_to_copy.append(folder_selection)
-        dir_3.value = folder_selection
+        dir_3.value = short_file_path(folder_selection)
         dir_4.show()
         dir_4.disable()
         print(folders_to_copy)
@@ -36,7 +36,7 @@ def main():
     def add_folder4():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         folders_to_copy.append(folder_selection)
-        dir_4.value = folder_selection
+        dir_4.value = short_file_path(folder_selection)
         dir_5.show()
         dir_5.disable()
         print(folders_to_copy)
@@ -45,7 +45,7 @@ def main():
     def add_folder5():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         folders_to_copy.append(folder_selection)
-        dir_5.value = folder_selection
+        dir_5.value = short_file_path(folder_selection)
         print(folders_to_copy)
         select_dir_1._command = max_folders_error
     
@@ -56,8 +56,16 @@ def main():
         error_popup.hide()
         error_popup.error("Error", "Maximum Number of Folders Reached")
         
-    
-        
+    # Shortens folder path for GUI
+    def short_file_path(path):
+        temp = ""
+        count = -1
+        for letters in path:
+            temp += path[count]
+            if temp.count("/") == 2:
+                break
+            count -= 1
+        return temp[::-1]
              
     #List that holds paths to selected folders to copy
     folders_to_copy = []
@@ -70,31 +78,32 @@ def main():
     #Button to add device where folders will be copied to
     choose_hdd = PushButton(app, text="Select Backup Destination", align="left")
     
+   
+    
     
     #Display of folder paths in the GUI - Programming 5 folders max
-    dir_1 = TextBox(app, text="")
+    dir_1 = TextBox(app, text="", width=20)
     dir_1.disable()
     
-    dir_2 = TextBox(app, text="")
+    dir_2 = TextBox(app, text="", width=20)
     dir_2.disable()
     dir_2.hide()
     
-    dir_3 = TextBox(app, text="")
+    dir_3 = TextBox(app, text="", width=20)
     dir_3.disable()
     dir_3.hide()
     
-    dir_4 = TextBox(app, text="")
+    dir_4 = TextBox(app, text="", width=20)
     dir_4.disable()
     dir_4.hide()
     
-    dir_5 = TextBox(app, text="")
+    dir_5 = TextBox(app, text="", width=20)
     dir_5.disable()
     dir_5.hide()
     
     #Button to add folders to copy list
     select_dir_1 = PushButton(app, image="./src/plus.png", command=add_folder1)
     
-
     
     app.display()
     
