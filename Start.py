@@ -1,4 +1,4 @@
-from guizero import App, Box, PushButton, TextBox, Picture, Window, Text
+from guizero import App, Box, PushButton, TextBox, Picture, Window, Text, MenuBar
 from tkinter.filedialog import askopenfilenames, askdirectory
 
 
@@ -66,6 +66,18 @@ def main():
                 break
             count -= 1
         return temp[::-1]
+    
+    
+    def load_show_save_device():
+        folder_selection = str((askdirectory(title="Select a Folder") + "/"))
+        hdd.show()
+        hdd_text.show()
+        hdd_text.value = folder_selection
+        #choose_hdd.destroy()
+
+
+    def file_function():
+        pass
              
     #List that holds paths to selected folders to copy
     folders_to_copy = []
@@ -73,36 +85,51 @@ def main():
     
     #Gui Frame
     app = App(title="Backup Tool", width=500, height=250, bg="white")
-    box = Box(app)
+    box_left = Box(app, align="left", border=10)
+    box_right = Box(app, align="right", border=10)
     
     #Button to add device where folders will be copied to
-    choose_hdd = PushButton(app, text="Select Backup Destination", align="left")
+    hdd = Picture(box_left, image="./src/folder.png", align="top")
+    hdd.hide()
+    hdd_text = Text(box_left, text="folder_selection")
+    hdd_text.hide()
+    choose_hdd = PushButton(box_left, text="Select Backup Destination", align="top", command=load_show_save_device)
     
    
     
     
     #Display of folder paths in the GUI - Programming 5 folders max
-    dir_1 = TextBox(app, text="", width=20)
+    dir_1 = TextBox(box_right, text="", width=20)
     dir_1.disable()
     
-    dir_2 = TextBox(app, text="", width=20)
+    dir_2 = TextBox(box_right, text="", width=20)
     dir_2.disable()
     dir_2.hide()
     
-    dir_3 = TextBox(app, text="", width=20)
+    dir_3 = TextBox(box_right, text="", width=20)
     dir_3.disable()
     dir_3.hide()
     
-    dir_4 = TextBox(app, text="", width=20)
+    dir_4 = TextBox(box_right, text="", width=20)
     dir_4.disable()
     dir_4.hide()
     
-    dir_5 = TextBox(app, text="", width=20)
+    dir_5 = TextBox(box_right, text="", width=20)
     dir_5.disable()
     dir_5.hide()
     
     #Button to add folders to copy list
-    select_dir_1 = PushButton(app, image="./src/plus.png", command=add_folder1)
+    select_dir_1 = PushButton(box_right, image="./src/plus.png", command=add_folder1)
+    
+    
+    
+    menubar = MenuBar(app,
+                  toplevel=["File"],
+                  options=[
+                      [ ["Save Settings", file_function], ["Load Settings", file_function] ],
+                  ])
+    
+    
     
     
     app.display()
