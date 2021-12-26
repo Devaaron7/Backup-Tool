@@ -84,25 +84,50 @@ def main():
     
     
     #Gui Frame
-    app = App(title="Backup Tool", width=500, height=250, bg="white")
-    box_left = Box(app, align="left", border=10)
-    box_right = Box(app, align="right", border=10)
+    app = App(title="Backup Tool", width=500, height=250, bg="white", layout="grid")
+    #box_left = Box(app, layout="grid")
+    box_right = Box(app, align="right", grid=[8,0])
     
+    #test1 = PushButton(app, grid=[0,0])
+    #test2 = PushButton(app, grid=[3,0])
+    
+    
+    #button1 = PushButton(app, text="1", grid=[0,0], align="left")
+    #button2 = PushButton(app, text="2", grid=[0,1], align="left")
+    #button3  = PushButton(app, text="3", grid=[0,2], align="left")
+    #button4  = PushButton(box_right, text="4", grid=[10,0])
+    #button5  = PushButton(box_right, text="5", grid=[11,0])
+    #button6  = PushButton(box_right, text="6", grid=[12,0])
+    '''
+    button7  = PushButton(app, text="7", grid=[6,0])
+    button8  = PushButton(app, text="8", grid=[7,0])
+    button9  = PushButton(app, text="9", grid=[8,0])
+    button0  = PushButton(app, text="10", grid=[9,0])
+    button0  = PushButton(app, text="11", grid=[10,0])
+    button0  = PushButton(app, text="12", grid=[11,0])
+    button0  = PushButton(app, text="13", grid=[12,0])
+ 
+    
+    
+    
+    
+    
+    '''
     #Button to add device where folders will be copied to
-    hdd = Picture(box_left, image="./src/folder.png", align="top")
+    hdd = Picture(app, image="./src/folder.png", grid=[0,0])
     hdd.hide()
-    hdd_text = Text(box_left, text="folder_selection")
+    hdd_text = Text(app, text="folder_selection", grid=[0,1])
     hdd_text.hide()
-    choose_hdd = PushButton(box_left, text="Select Backup Destination", align="top", command=load_show_save_device)
-    
+    choose_hdd = PushButton(app, text="Select Backup Destination", grid=[0,2], command=load_show_save_device)
+    '''
    
     
     
     #Display of folder paths in the GUI - Programming 5 folders max
-    dir_1 = TextBox(box_right, text="", width=20)
+    dir_1 = TextBox(box_right, text="", width=20, grid=[0,0])
     dir_1.disable()
     
-    dir_2 = TextBox(box_right, text="", width=20)
+    dir_2 = TextBox(box_right, text="", width=20, grid=[3,1])
     dir_2.disable()
     dir_2.hide()
     
@@ -122,7 +147,7 @@ def main():
     select_dir_1 = PushButton(box_right, image="./src/plus.png", command=add_folder1)
     
     
-    
+    '''
     menubar = MenuBar(app,
                   toplevel=["File"],
                   options=[
