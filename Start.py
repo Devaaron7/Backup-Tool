@@ -11,9 +11,6 @@ def main():
         dir_1.value = short_file_path(folder_selection)
         dir_2.show()
         dir_2.disable()
-        select_dir.hide()
-        close_dir.hide()
-        select_dir.show()
         close_dir.show()
         select_dir._command = add_folder2
         print(folders_to_copy)
@@ -53,6 +50,33 @@ def main():
         print(folders_to_copy)
         select_dir._command = max_folders_error
     
+    def remove_folder():
+        target = short_file_path(folders_to_copy[-1])
+        if dir_1.value == target:
+            dir_1.value = ""
+            dir_2.hide()
+            folders_to_copy.clear()
+            select_dir._command = add_folder1
+        if dir_2.value == target:
+            dir_2.value = ""
+            dir_3.hide()
+            folders_to_copy.pop(-1)
+            select_dir._command = add_folder2
+        if dir_3.value == target:
+            dir_3.value = ""
+            dir_4.hide()
+            folders_to_copy.pop(-1)
+            select_dir._command = add_folder3
+        if dir_4.value == target:
+            dir_4.value = ""
+            dir_5.hide()
+            folders_to_copy.pop(-1)
+            select_dir._command = add_folder4
+        if dir_5.value == target:
+            dir_5.value = ""
+            folders_to_copy.pop(-1)
+            select_dir._command = add_folder5
+    
     
     #Error message that displays once the 5 folder limit is reached 
     def max_folders_error():
@@ -87,30 +111,29 @@ def main():
     folders_to_copy = []
     
     
-    #Gui Frame
+    #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
     
+    
+    # Splits The GUI into Two Parts
     box_top_row = Box(app, width="fill", height="fill",  align="top")
     box_bottom_row = Box(app, width="fill", height="fill",  align="bottom")
     
     
+    # Splits the Two portion into three columns
     box_left = Box(box_top_row, width="fill", height="fill",  align="left")
     box_center = Box(box_top_row, width="fill", height="fill", align="left")
     box_right = Box(box_top_row, width="fill", height="fill", align="right", border=False)
     
     
-    
+    # Empty Space to separate the left column from the right. Fill with an invisible button
+    button2 = PushButton(box_center, text="2", height="fill", width="fill", visible=False)
+
+    # Splits the bottom portion into two parts - One for Status Text & One for the Progress bar
     box_bottom_progress = Box(box_bottom_row, width="fill", align="bottom", border=True)
     box_bottom_status = Box(box_bottom_row, width="fill", align="bottom")
     
-    
-    #button1 = PushButton(box_left, text="1", height="fill", width="fill")
-    button2 = PushButton(box_center, text="2", height="fill", width="fill", visible=False)
-    #button3 = PushButton(box_right, text="3", height="fill", width="fill")
-    #button4 = PushButton(box_bottom_status, text="4", width="fill")
-    #button5 = PushButton(box_bottom_progress, width="fill", text="5")
-    
-    
+
     
     #Button to add device where folders will be copied to
     hdd = Picture(box_left, image="./src/folder.png", align="top")
@@ -125,8 +148,6 @@ def main():
     #Display of folder paths in the GUI - Programming 5 folders max
     dir_1 = TextBox(box_right, text="", width=20, align="top")
     dir_1.disable()
-    
-    
     
     dir_2 = TextBox(box_right, text="", width=20, align="top")
     dir_2.disable()
@@ -144,15 +165,12 @@ def main():
     dir_5.disable()
     dir_5.hide()
     
-    
-    
-    
-    box_bottom_row_buttons = Box(box_right, width=50, height=25,  align="top", border=False)
-    
     #Button to add folders to copy list
+    box_bottom_row_buttons = Box(box_right, width=50, height=25,  align="top", border=False)
     select_dir = PushButton(box_bottom_row_buttons, image="./src/plus.png", command=add_folder1, align="right")
+    close_dir = PushButton(box_bottom_row_buttons, image="./src/close.png", command=remove_folder, align="right")
+    close_dir.hide()
     
-    close_dir = PushButton(box_bottom_row_buttons, image="./src/close.png", command=add_folder1, align="right")
     
     #Status Text
     status_text = Text(box_bottom_status, text="This will show the current files being transfered")
@@ -162,6 +180,8 @@ def main():
     pb = Progressbar(box_bottom_progress.tk, length=500)
     box_bottom_progress.add_tk_widget(pb)
     
+    
+    # Menu Items
     menubar = MenuBar(app,
                   toplevel=["File"],
                   options=[
