@@ -11,7 +11,11 @@ def main():
         dir_1.value = short_file_path(folder_selection)
         dir_2.show()
         dir_2.disable()
-        select_dir_1._command = add_folder2
+        select_dir.hide()
+        close_dir.hide()
+        select_dir.show()
+        close_dir.show()
+        select_dir._command = add_folder2
         print(folders_to_copy)
         
     
@@ -22,7 +26,7 @@ def main():
         dir_3.show()
         dir_3.disable()
         print(folders_to_copy)
-        select_dir_1._command = add_folder3
+        select_dir._command = add_folder3
         
     def add_folder3():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
@@ -31,7 +35,7 @@ def main():
         dir_4.show()
         dir_4.disable()
         print(folders_to_copy)
-        select_dir_1._command = add_folder4
+        select_dir._command = add_folder4
         
     def add_folder4():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
@@ -40,14 +44,14 @@ def main():
         dir_5.show()
         dir_5.disable()
         print(folders_to_copy)
-        select_dir_1._command = add_folder5
+        select_dir._command = add_folder5
         
     def add_folder5():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         folders_to_copy.append(folder_selection)
         dir_5.value = short_file_path(folder_selection)
         print(folders_to_copy)
-        select_dir_1._command = max_folders_error
+        select_dir._command = max_folders_error
     
     
     #Error message that displays once the 5 folder limit is reached 
@@ -92,7 +96,8 @@ def main():
     
     box_left = Box(box_top_row, width="fill", height="fill",  align="left")
     box_center = Box(box_top_row, width="fill", height="fill", align="left")
-    box_right = Box(box_top_row, width="fill", height="fill", align="right")
+    box_right = Box(box_top_row, width="fill", height="fill", align="right", border=False)
+    
     
     
     box_bottom_progress = Box(box_bottom_row, width="fill", align="bottom", border=True)
@@ -121,6 +126,8 @@ def main():
     dir_1 = TextBox(box_right, text="", width=20, align="top")
     dir_1.disable()
     
+    
+    
     dir_2 = TextBox(box_right, text="", width=20, align="top")
     dir_2.disable()
     dir_2.hide()
@@ -138,10 +145,14 @@ def main():
     dir_5.hide()
     
     
+    
+    
+    box_bottom_row_buttons = Box(box_right, width=50, height=25,  align="top", border=False)
+    
     #Button to add folders to copy list
-    select_dir_1 = PushButton(box_right, image="./src/plus.png", command=add_folder1, align="top")
+    select_dir = PushButton(box_bottom_row_buttons, image="./src/plus.png", command=add_folder1, align="right")
     
-    
+    close_dir = PushButton(box_bottom_row_buttons, image="./src/close.png", command=add_folder1, align="right")
     
     #Status Text
     status_text = Text(box_bottom_status, text="This will show the current files being transfered")
