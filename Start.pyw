@@ -1,6 +1,8 @@
+from tkinter.constants import TRUE
 from guizero import App, Box, PushButton, TextBox, Picture, Window, Text, MenuBar
 from tkinter.filedialog import askopenfilenames, askdirectory
 from tkinter.ttk import Progressbar
+import os
 
 def main():
     
@@ -13,6 +15,10 @@ def main():
         dir_2.disable()
         close_dir.show()
         select_dir._command = add_folder2
+        if len(folders_to_copy) >= 1 and hdd_text._text.__contains__("//") == True:
+            start_button.enable()
+        else:
+            start_button.disable()
         print(folders_to_copy)
         
     
@@ -57,6 +63,10 @@ def main():
             dir_2.hide()
             folders_to_copy.clear()
             select_dir._command = add_folder1
+            if len(folders_to_copy) >= 1 and hdd_text._text.__contains__("//") == True:
+                start_button.enable()
+            else:
+                start_button.disable()
         if dir_2.value == target:
             dir_2.value = ""
             dir_3.hide()
@@ -101,9 +111,30 @@ def main():
         hdd.show()
         hdd_text.show()
         hdd_text.value = folder_selection
-        #choose_hdd.destroy()
+        if len(folders_to_copy) >= 1 and hdd_text._text.__contains__("//") == True:
+            start_button.enable()
+        else:
+            start_button.disable()
+        
 
 
+    def start_copy():
+        #robocopy "C:\Users\ATHQ\Documents\DAZ 3D" "D:\2021 bkup\3D Backup\DAZ 3D" /e /xo /eta
+        #robocopy "C:\Users\ATHQ\Documents\Edits" "D:\2021 bkup\3D Backup\Edits" /e /xo /eta
+        #robocopy "C:\Users\ATHQ\Desktop\Python Projects" "D:\2021 bkup\Python Projects" /e /xo /eta
+        #os.system('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value))
+        log = os.popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value)).read()
+        #print(log)
+        
+        log = log.split("\n")
+        n = 0
+        for x in (log):
+            print(x + str(n))
+            n += 1
+                  
+        #print(folders_to_copy[0])
+        pass
+    
     def file_function():
         pass
              
@@ -126,7 +157,7 @@ def main():
     box_right = Box(box_top_row, width="fill", height="fill", align="right", border=False)
     
     
-    # Empty Space to separate the left column from the right. Fill with an invisible button
+    # Empty Space to separate the left column from the right. Filled with an invisible button
     button2 = PushButton(box_center, text="2", height="fill", width="fill", visible=False)
 
     # Splits the bottom portion into two parts - One for Status Text & One for the Progress bar
@@ -172,11 +203,15 @@ def main():
     close_dir.hide()
     
     
+    #Start Copy Button
+    start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
+    start_button.disable()
+    
     #Status Text
     status_text = Text(box_bottom_status, text="This will show the current files being transfered")
     
     
-    # add a progress bar to the boc
+    # add a progress bar to the box
     pb = Progressbar(box_bottom_progress.tk, length=500)
     box_bottom_progress.add_tk_widget(pb)
     
