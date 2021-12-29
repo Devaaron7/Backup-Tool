@@ -3,6 +3,9 @@ from guizero import App, Box, PushButton, TextBox, Picture, Window, Text, MenuBa
 from tkinter.filedialog import askopenfilenames, askdirectory
 from tkinter.ttk import Progressbar
 import os
+import threading
+import time
+import subprocess
 
 def main():
     
@@ -123,17 +126,34 @@ def main():
         #robocopy "C:\Users\ATHQ\Documents\Edits" "D:\2021 bkup\3D Backup\Edits" /e /xo /eta
         #robocopy "C:\Users\ATHQ\Desktop\Python Projects" "D:\2021 bkup\Python Projects" /e /xo /eta
         #os.system('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value))
-        log = os.popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value)).read()
+        subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
+        #("start command -flags arguments", shell=True)
+        print("Running Concerrently")
+        #t = threading.Thread(os.popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value)).read())
+        #t.start()
         #print(log)
         
-        log = log.split("\n")
+        #new_output = log.split("\n")
+        
+        '''
         n = 0
+        print(new_output[19])
+        status_text.value = new_output[19]
+        
         for x in (log):
             print(x + str(n))
             n += 1
-                  
+        '''
         #print(folders_to_copy[0])
-        pass
+        #pass
+    
+    '''
+    def thread_start():
+        t = threading.Thread(start_copy())
+        q = threading.Thread(print("Running Concerrently"))
+        t.start()
+        q.start()
+    '''
     
     def file_function():
         pass
@@ -204,6 +224,7 @@ def main():
     
     
     #Start Copy Button
+    #start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
     start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
     start_button.disable()
     
