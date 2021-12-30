@@ -108,7 +108,7 @@ def main():
             count -= 1
         return temp[::-1]
     
-    
+    # Stores path to storage device / path + enables image
     def load_show_save_device():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         hdd.show()
@@ -126,9 +126,22 @@ def main():
         #robocopy "C:\Users\ATHQ\Documents\Edits" "D:\2021 bkup\3D Backup\Edits" /e /xo /eta
         #robocopy "C:\Users\ATHQ\Desktop\Python Projects" "D:\2021 bkup\Python Projects" /e /xo /eta
         #os.system('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value))
-        subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
+        copy_process_text = subprocess.run('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
+        with open("./result.txt") as f:
+            file_status = f.readlines()
+        #print(file_status[2].strip())
+        #print(file_status[2:-11])  [2:- 11] pulls just the file names from the results text file
+        for x in file_status[2:-11]:
+            status_text.clear()
+            status_text.value = x.strip()
+            time.sleep(2)
+       
+            #n += 1
+        #copy_process = subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
+
         #("start command -flags arguments", shell=True)
-        print("Running Concerrently")
+        #stdout = copy_process.communicate()[0]
+        #print(str(stdout))
         #t = threading.Thread(os.popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value)).read())
         #t.start()
         #print(log)
