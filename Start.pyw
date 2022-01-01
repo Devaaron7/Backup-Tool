@@ -119,62 +119,50 @@ def main():
         else:
             start_button.disable()
         
-
+    def clean_results(item):
+            item.pop(0)
+            item.pop(0)
+            item.pop(0)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
+            item.pop(-1)
 
     def start_copy():
-        #robocopy "C:\Users\ATHQ\Documents\DAZ 3D" "D:\2021 bkup\3D Backup\DAZ 3D" /e /xo /eta
-        #robocopy "C:\Users\ATHQ\Documents\Edits" "D:\2021 bkup\3D Backup\Edits" /e /xo /eta
-        #robocopy "C:\Users\ATHQ\Desktop\Python Projects" "D:\2021 bkup\Python Projects" /e /xo /eta
-        #os.system('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value))
         copy_process_text = subprocess.run('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
+        #copy_process = subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
         with open("./result.txt") as f:
             file_status = f.readlines()
-        #print(file_status[2].strip())
-        #print(file_status[2:-11])  [2:- 11] pulls just the file names from the results text file
-        for x in file_status[2:-11]:
-            status_text.clear()
-            status_text.value = x.strip()
-            time.sleep(2)
-       
-            #n += 1
-        #copy_process = subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
 
-        #("start command -flags arguments", shell=True)
-        #stdout = copy_process.communicate()[0]
-        #print(str(stdout))
-        #t = threading.Thread(os.popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /tee /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value)).read())
-        #t.start()
-        #print(log)
-        
-        #new_output = log.split("\n")
-        
-        '''
-        n = 0
-        print(new_output[19])
-        status_text.value = new_output[19]
-        
-        for x in (log):
-            print(x + str(n))
-            n += 1
-        '''
-        #print(folders_to_copy[0])
-        #pass
+        clean_results(file_status)
+
+        for x in file_status:
+            files_to_check_progress.append(x.strip())
+            
+        for files in files_to_check_progress:
+            status_text.value = files
+            time.sleep(1)
+
     
-    '''
-    def thread_start():
-        t = threading.Thread(start_copy())
-        q = threading.Thread(print("Running Concerrently"))
-        t.start()
-        q.start()
-    '''
-    
+    def background():
+        thread1 = threading.Thread(target=start_copy)
+        thread1.start()
+        return None
+
+
     def file_function():
         pass
              
     #List that holds paths to selected folders to copy
     folders_to_copy = []
     
-    
+    files_to_check_progress = []
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
     
@@ -238,7 +226,8 @@ def main():
     
     #Start Copy Button
     #start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
-    start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
+    #start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
+    start_button = PushButton(box_bottom_status, text="Start", align="top", command=background)
     start_button.disable()
     
     #Status Text
