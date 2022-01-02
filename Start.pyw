@@ -6,6 +6,8 @@ import os
 import threading
 import time
 import subprocess
+import os.path
+
 
 def main():
     
@@ -134,22 +136,43 @@ def main():
             item.pop(-1)
             item.pop(-1)
 
+
+
+
     def start_copy():
-        copy_process_text = subprocess.run('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
-        #copy_process = subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log:result.txt"'.format(folder = folders_to_copy[0], source = hdd_text.value), shell=True)
-        with open("./result.txt") as f:
-            file_status = f.readlines()
-
-        clean_results(file_status)
-
-        for x in file_status:
-            files_to_check_progress.append(x.strip())
+        # Does first run generating the list of files to keep track of the progress when the actual copying happens
+        start_button.disable()
+        for every_folder_to_copy in folders_to_copy:
+            subprocess.run('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
             
-        for files in files_to_check_progress:
-            status_text.value = files
-            time.sleep(1)
+            with open("./result.txt") as f:
+                file_status = f.readlines()
+            
+            clean_results(file_status)
 
-    
+            for lines in file_status:
+                files_to_check_progress.append(lines.strip())
+
+        units = 100 / len(files_to_check_progress)
+
+        running = True
+        while running:
+            for real_items in folders_to_copy:
+                subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
+                while len(files_to_check_progress) > 0:
+                    for items in files_to_check_progress:
+                        if os.path.exists(hdd_text.value + items):
+                            status_text.value = items
+                            files_to_check_progress.remove(items)
+                            pb['value'] += units
+                    if len(files_to_check_progress) == 0:
+                        pb.stop()
+                        status_text.value = "Backup Complete!"
+                        start_button.enable()
+                        running = False
+        
+
+
     def background():
         thread1 = threading.Thread(target=start_copy)
         thread1.start()
