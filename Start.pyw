@@ -1,4 +1,5 @@
 from tkinter.constants import TRUE
+from typing import Counter
 from guizero import App, Box, PushButton, TextBox, Picture, Window, Text, MenuBar
 from tkinter.filedialog import askopenfilenames, askdirectory
 from tkinter.ttk import Progressbar
@@ -150,29 +151,58 @@ def main():
             
             clean_results(file_status)
 
+            line_count = 0
             for lines in file_status:
                 files_to_check_progress.append(lines.strip())
+                line_count += 1
+            
+            
+            length_of_each_folder.append(line_count)
 
         units = 100 / len(files_to_check_progress)
 
+        #input()
+        #print(files_to_check_progress)
+        #print(length_of_each_folder)
+        #input()
         running = True
+        count = 0
+        index_for_folder_count_check = 0
+        '''
         while running:
-            for real_items in folders_to_copy:
+            for real_items in folders_to_copy: 
                 subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
-                while len(files_to_check_progress) > 0:
+                #while len(files_to_check_progress) < length_of_each_folder[index_for_folder_count_check]:
+                while length_of_each_folder[index_for_folder_count_check] != count:
                     for items in files_to_check_progress:
                         if os.path.exists(hdd_text.value + items):
                             status_text.value = items
                             files_to_check_progress.remove(items)
                             pb['value'] += units
+                            time.sleep(1)
                     if len(files_to_check_progress) == 0:
                         pb.stop()
                         status_text.value = "Backup Complete!"
                         start_button.enable()
                         running = False
-        
-
-
+                    count += 1
+                index_for_folder_count_check += 1
+        '''
+        for real_items in folders_to_copy: 
+            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
+            time.sleep(5)
+            for items in files_to_check_progress:
+                if os.path.exists(hdd_text.value + items):
+                    status_text.value = items
+                    files_to_check_progress.remove(items)
+                    pb['value'] += units
+                    time.sleep(1)
+                if len(files_to_check_progress) == 0:
+                    pb.stop()
+                    status_text.value = "Backup Complete!"
+                    start_button.enable()
+                    #running = False
+            
     def background():
         thread1 = threading.Thread(target=start_copy)
         thread1.start()
@@ -186,6 +216,8 @@ def main():
     folders_to_copy = []
     
     files_to_check_progress = []
+
+    length_of_each_folder = []
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
     
