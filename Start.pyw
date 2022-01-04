@@ -152,56 +152,67 @@ def main():
             clean_results(file_status)
 
             line_count = 0
+            temp = []
             for lines in file_status:
-                files_to_check_progress.append(lines.strip())
+                temp.append(lines.strip())
                 line_count += 1
             
+            files_to_check_progress.append(temp)
             
             length_of_each_folder.append(line_count)
 
-        units = 100 / len(files_to_check_progress)
+        units = 100 / line_count
 
         #input()
         #print(files_to_check_progress)
-        #print(length_of_each_folder)
+        #print(files_to_check_progress)
+        #print(len(files_to_check_progress))
+        #files_to_check_progress[0].clear()
+        #files_to_check_progress[1].clear()
+        #print(len(files_to_check_progress))
         #input()
         running = True
         count = 0
         index_for_folder_count_check = 0
+        
         '''
         while running:
             for real_items in folders_to_copy: 
                 subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
-                #while len(files_to_check_progress) < length_of_each_folder[index_for_folder_count_check]:
-                while length_of_each_folder[index_for_folder_count_check] != count:
-                    for items in files_to_check_progress:
-                        if os.path.exists(hdd_text.value + items):
-                            status_text.value = items
-                            files_to_check_progress.remove(items)
-                            pb['value'] += units
-                            time.sleep(1)
-                    if len(files_to_check_progress) == 0:
-                        pb.stop()
-                        status_text.value = "Backup Complete!"
-                        start_button.enable()
-                        running = False
-                    count += 1
-                index_for_folder_count_check += 1
+                while len(files_to_check_progress)  > 0:
+                    for boxes in files_to_check_progress:
+                        for items_inside_boxes in boxes:
+                            if os.path.exists(hdd_text.value + items_inside_boxes):
+                                status_text.value = items_inside_boxes
+                                boxes.remove(items_inside_boxes)
+                                pb['value'] += units
+                                time.sleep(1)
+                        if len(files_to_check_progress) == 0:
+                            pb.stop()
+                            status_text.value = "Backup Complete!"
+                            start_button.enable()
+                            running = False
         '''
+
+        n = 0
         for real_items in folders_to_copy: 
-            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
-            time.sleep(5)
-            for items in files_to_check_progress:
-                if os.path.exists(hdd_text.value + items):
-                    status_text.value = items
-                    files_to_check_progress.remove(items)
-                    pb['value'] += units
-                    time.sleep(1)
-                if len(files_to_check_progress) == 0:
-                    pb.stop()
-                    status_text.value = "Backup Complete!"
-                    start_button.enable()
-                    #running = False
+            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
+            for folders in files_to_check_progress:
+                for folder_items in folders:
+                    while running:
+                        if os.path.exists(hdd_text.value + folder_items):
+                            status_text.value = folder_items
+                            #files_to_check_progress[n].remove(folders[n])
+                            pb['value'] += units
+                            #time.sleep(3)
+                            running = False
+                    
+                    running = True
+                #n += 1
+        pb.stop()
+        status_text.value = "Backup Complete!"
+        start_button.enable()
+        
             
     def background():
         thread1 = threading.Thread(target=start_copy)
