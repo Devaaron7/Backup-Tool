@@ -155,13 +155,17 @@ def main():
             temp = []
             for lines in file_status:
                 temp.append(lines.strip())
+                progress_units.append(lines.strip())
                 line_count += 1
             
+            
+
+
             files_to_check_progress.append(temp)
             
             length_of_each_folder.append(line_count)
 
-        units = 100 / line_count
+        #progress_units += 100 / line_count
 
         #input()
         #print(files_to_check_progress)
@@ -171,7 +175,7 @@ def main():
         #files_to_check_progress[1].clear()
         #print(len(files_to_check_progress))
         #input()
-        running = True
+        
         count = 0
         index_for_folder_count_check = 0
         
@@ -194,29 +198,39 @@ def main():
                             running = False
         '''
 
-        n = 0
+        
         for real_items in folders_to_copy: 
             subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
+            
+        
+    
+    def track_progress():
+        running = True
+        bar = True
+        while running:
             for folders in files_to_check_progress:
                 for folder_items in folders:
-                    while running:
+                    while bar:
                         if os.path.exists(hdd_text.value + folder_items):
                             status_text.value = folder_items
                             #files_to_check_progress[n].remove(folders[n])
-                            pb['value'] += units
-                            #time.sleep(3)
-                            running = False
-                    
-                    running = True
-                #n += 1
-        pb.stop()
-        status_text.value = "Backup Complete!"
-        start_button.enable()
-        
+                            pb['value'] += (100 / len(progress_units))
+                            #time.sleep(2)
+                            bar = False
+                    bar = True
+                
+            if pb['value'] >= 100:
+                pb.stop()
+                status_text.value = "Backup Complete!"
+                start_button.enable()
+                running = False
+
             
     def background():
-        thread1 = threading.Thread(target=start_copy)
+        thread1 = threading.Thread(target=track_progress)
         thread1.start()
+        thread2 = threading.Thread(target=start_copy)
+        thread2.start()
         return None
 
 
@@ -229,6 +243,9 @@ def main():
     files_to_check_progress = []
 
     length_of_each_folder = []
+
+    progress_units = []
+
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
     
