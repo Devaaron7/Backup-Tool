@@ -8,6 +8,7 @@ import threading
 import time
 import subprocess
 import os.path
+import configparser
 
 
 def main():
@@ -158,64 +159,28 @@ def main():
                 progress_units.append(lines.strip())
                 line_count += 1
             
-            
-
-
             files_to_check_progress.append(temp)
             
             length_of_each_folder.append(line_count)
 
-        #progress_units += 100 / line_count
-
-        #input()
-        #print(files_to_check_progress)
-        #print(files_to_check_progress)
-        #print(len(files_to_check_progress))
-        #files_to_check_progress[0].clear()
-        #files_to_check_progress[1].clear()
-        #print(len(files_to_check_progress))
-        #input()
-        
-        count = 0
-        index_for_folder_count_check = 0
-        
-        '''
-        while running:
-            for real_items in folders_to_copy: 
-                subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
-                while len(files_to_check_progress)  > 0:
-                    for boxes in files_to_check_progress:
-                        for items_inside_boxes in boxes:
-                            if os.path.exists(hdd_text.value + items_inside_boxes):
-                                status_text.value = items_inside_boxes
-                                boxes.remove(items_inside_boxes)
-                                pb['value'] += units
-                                time.sleep(1)
-                        if len(files_to_check_progress) == 0:
-                            pb.stop()
-                            status_text.value = "Backup Complete!"
-                            start_button.enable()
-                            running = False
-        '''
-
-        
         for real_items in folders_to_copy: 
             subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
             
         
-    
     def track_progress():
         running = True
         bar = True
         while running:
             for folders in files_to_check_progress:
                 for folder_items in folders:
+                    #print(short_file_path(folder_items))
+                    #print(os.path.exists(hdd_text.value + short_file_path(folder_items)))
+                    #input()
                     while bar:
-                        if os.path.exists(hdd_text.value + folder_items):
+                        # Need to work out progress track loop to include folders - current code doesn't track folders that are copied over
+                        if os.path.exists(hdd_text.value + folder_items) or os.path.exists(hdd_text.value + short_file_path(folder_items)):
                             status_text.value = folder_items
-                            #files_to_check_progress[n].remove(folders[n])
                             pb['value'] += (100 / len(progress_units))
-                            #time.sleep(2)
                             bar = False
                     bar = True
                 
@@ -236,7 +201,47 @@ def main():
 
     def file_function():
         pass
-             
+
+
+    def save_settings():
+        config['Backup Destination'] = {}
+        config['Backup Destination']['Path'] = hdd_text.value
+
+        config['Folders To Copy'] = {}
+        config['Folders To Copy']['Folder 1'] = folders_to_copy[0]
+
+        if len(folders_to_copy) > 1:
+            folder_num = 2
+            for saves in range(1, len(folders_to_copy)):
+                config['Folders To Copy']['Folder {}'.format(folder_num)] = folders_to_copy[saves]
+                folder_num += 1
+        
+        with open('save.ini', 'w') as configfile:
+            config.write(configfile)
+
+
+    def load_settings():
+        config.read(askopenfilenames())
+        hdd_text.show()
+        hdd.show()
+        hdd_text.value = config['Backup Destination']['Path']
+        
+        '''
+        config['Folders To Copy'] = {}
+        config['Folders To Copy']['Folder 1'] = folders_to_copy[0]
+
+        if len(folders_to_copy) > 1:
+            folder_num = 2
+            for saves in range(1, len(folders_to_copy)):
+                config['Folders To Copy']['Folder {}'.format(folder_num)] = folders_to_copy[saves]
+                folder_num += 1
+        
+        with open('save.ini', 'w') as configfile:
+            config.write(configfile)
+        '''
+    # Create instance of ini
+    config = configparser.ConfigParser()
+
     #List that holds paths to selected folders to copy
     folders_to_copy = []
     
@@ -314,7 +319,7 @@ def main():
     start_button.disable()
     
     #Status Text
-    status_text = Text(box_bottom_status, text="This will show the current files being transfered")
+    status_text = Text(box_bottom_status, size=9, text="This will show the current files being transfered")
     
     
     # add a progress bar to the box
@@ -326,7 +331,7 @@ def main():
     menubar = MenuBar(app,
                   toplevel=["File"],
                   options=[
-                      [ ["Save Settings", file_function], ["Load Settings", file_function] ],
+                      [ ["Save Settings", save_settings], ["Load Settings", load_settings] ],
                   ])
     
     
