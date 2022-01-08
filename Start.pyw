@@ -109,7 +109,10 @@ def main():
             temp += path[count]
             if temp.count("/") == 2:
                 break
+            if temp.count("\\") == 2:
+                break
             count -= 1
+            
         return temp[::-1]
     
     # Stores path to storage device / path + enables image
@@ -145,7 +148,7 @@ def main():
         # Does first run generating the list of files to keep track of the progress when the actual copying happens
         start_button.disable()
         for every_folder_to_copy in folders_to_copy:
-            subprocess.run('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
+            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup Folder" /e /np /xo /ns /nc /fp /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
             
             with open("./result.txt") as f:
                 file_status = f.readlines()
@@ -155,30 +158,44 @@ def main():
             line_count = 0
             temp = []
             for lines in file_status:
-                temp.append(lines.strip())
-                progress_units.append(lines.strip())
-                line_count += 1
+                if "\\" in lines:
+                    temp.append(short_file_path(lines).strip())
+                    progress_units.append(short_file_path(lines).strip())
+                    line_count += 1
+                else:
+                    temp.append(lines.strip())
+                    progress_units.append(lines.strip())
+                    line_count += 1
             
             files_to_check_progress.append(temp)
             
             length_of_each_folder.append(line_count)
 
+            #files_to_check_progress.insert(5, "\\testo\\")
+            #print(files_to_check_progress)
+
+        #input()
+
         for real_items in folders_to_copy: 
-            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
-            
-        
+            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup Folder" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
+
+        input()
+        print(files_to_check_progress)
+        print(os.path.exists(hdd_text.value + "Backup Folder" + files_to_check_progress[0][0]))
+        input()
+
     def track_progress():
         running = True
         bar = True
         while running:
             for folders in files_to_check_progress:
                 for folder_items in folders:
-                    #print(short_file_path(folder_items))
-                    #print(os.path.exists(hdd_text.value + short_file_path(folder_items)))
+                    #print(folder_items)
+                    #print(os.path.exists(hdd_text.value + "Backup Folder" + folder_items))
                     #input()
                     while bar:
                         # Need to work out progress track loop to include folders - current code doesn't track folders that are copied over
-                        if os.path.exists(hdd_text.value + folder_items) or os.path.exists(hdd_text.value + short_file_path(folder_items)):
+                        if os.path.exists(hdd_text.value + "Backup Folder" + folder_items):
                             status_text.value = folder_items
                             pb['value'] += (100 / len(progress_units))
                             bar = False
