@@ -225,20 +225,35 @@ def main():
         hdd_text.show()
         hdd.show()
         hdd_text.value = config['Backup Destination']['Path']
+        folders_to_copy.clear()
         
-        '''
-        config['Folders To Copy'] = {}
-        config['Folders To Copy']['Folder 1'] = folders_to_copy[0]
-
-        if len(folders_to_copy) > 1:
-            folder_num = 2
-            for saves in range(1, len(folders_to_copy)):
-                config['Folders To Copy']['Folder {}'.format(folder_num)] = folders_to_copy[saves]
-                folder_num += 1
+        if config['Folders To Copy']['Folder 1']:
+            folders_to_copy.append(config['Folders To Copy']['Folder 1'])
+            dir_1.value = short_file_path(config['Folders To Copy']['Folder 1'])
+            dir_2.show()
+            close_dir.show()
+            print(folders_to_copy)
+        if config['Folders To Copy']['Folder 2']:
+            folders_to_copy.append(config['Folders To Copy']['Folder 2'])
+            dir_2.value = short_file_path(config['Folders To Copy']['Folder 2'])
+            dir_3.show()
+            print(folders_to_copy)
+        if config['Folders To Copy']['Folder 3']:
+            folders_to_copy.append(config['Folders To Copy']['Folder 3'])
+            dir_3.value = short_file_path(config['Folders To Copy']['Folder 3'])
+            dir_4.show()
+            print(folders_to_copy)
+        if config['Folders To Copy']['Folder 4']:
+            folders_to_copy.append(config['Folders To Copy']['Folder 4'])
+            dir_4.value = short_file_path(config['Folders To Copy']['Folder 4'])
+            dir_5.show()
+            print(folders_to_copy)
+        if config['Folders To Copy']['Folder 5']:
+            folders_to_copy.append(config['Folders To Copy']['Folder 5'])
+            dir_5.value = short_file_path(config['Folders To Copy']['Folder 5'])
+            print(folders_to_copy)
         
-        with open('save.ini', 'w') as configfile:
-            config.write(configfile)
-        '''
+    
     # Create instance of ini
     config = configparser.ConfigParser()
 
