@@ -28,7 +28,6 @@ def main():
             start_button.disable()
         print(folders_to_copy)
         
-    
     def add_folder2():
         folder_selection = str((askdirectory(title="Select a Folder") + "/"))
         folders_to_copy.append(folder_selection)
@@ -94,7 +93,6 @@ def main():
             folders_to_copy.pop(-1)
             select_dir._command = add_folder5
     
-    
     #Error message that displays once the 5 folder limit is reached 
     def max_folders_error():
         error_popup = Window(app, height= 50, width=300)
@@ -110,6 +108,7 @@ def main():
             if temp.count("/") == 2:
                 break
             if temp.count("\\") == 2:
+                temp = temp.replace("\\", "//")
                 break
             count -= 1
             
@@ -141,14 +140,12 @@ def main():
             item.pop(-1)
             item.pop(-1)
 
-
-
-
     def start_copy():
+        
         # Does first run generating the list of files to keep track of the progress when the actual copying happens
         start_button.disable()
         for every_folder_to_copy in folders_to_copy:
-            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup Folder" /e /np /xo /ns /nc /fp /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
+            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup Folder" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
             
             with open("./result.txt") as f:
                 file_status = f.readlines()
@@ -158,41 +155,75 @@ def main():
             line_count = 0
             temp = []
             for lines in file_status:
-                if "\\" in lines:
-                    temp.append(short_file_path(lines).strip())
-                    progress_units.append(short_file_path(lines).strip())
-                    line_count += 1
-                else:
-                    temp.append(lines.strip())
-                    progress_units.append(lines.strip())
-                    line_count += 1
-            
+                temp.append(short_file_path(lines.strip()))
+                #temp.append(lines.strip())
+                progress_units.append(lines.strip())
+                line_count += 1
+
             files_to_check_progress.append(temp)
-            
             length_of_each_folder.append(line_count)
+        
 
-            #files_to_check_progress.insert(5, "\\testo\\")
-            #print(files_to_check_progress)
+       
 
-        #input()
-
-        for real_items in folders_to_copy: 
-            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup Folder" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value), shell=True)
-
+        for short_paths in folders_to_copy:
+            folders_to_create.append(short_file_path(short_paths))
+        
+        
         input()
+
+        print(folders_to_copy)
+
+        print("-------------------------------------")
+
+        print(folders_to_create)
+        
+        print("-------------------------------------")
+
+        print(progress_units)
+
+        print("-------------------------------------")
+
         print(files_to_check_progress)
-        print(os.path.exists(hdd_text.value + "Backup Folder" + files_to_check_progress[0][0]))
+
+        print("-------------------------------------")
+
+        print(hdd_text.value)
+
+        print("-------------------------------------")
+
+        print(hdd_text.value + "Backup Folder" + folders_to_create[0] + files_to_check_progress[0][0])
+
+        print("-------------------------------------")
+
+        # Files inside other folders are not showing correct path ex - ln 199 - E://Backup Folder/small files/intel_chipse_9_mb.zip should be E://Backup Folder/small files/testo/intel_chipse_9_mb.zip
+
+        total_list = list(os.walk(hdd_text.value + "Backup Folder"))
+        print( files_to_check_progress[0] in total_list)
+
+        
+
         input()
+        
+        
+        num = 0
+        for real_items in folders_to_copy: 
+            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folders_to_create[num]), shell=True)
+            num += 1
+        
 
     def track_progress():
         running = True
         bar = True
+        #fc = 0
+        #time.sleep(4)
+        '''
+        print("progress starting")
         while running:
             for folders in files_to_check_progress:
                 for folder_items in folders:
-                    #print(folder_items)
-                    #print(os.path.exists(hdd_text.value + "Backup Folder" + folder_items))
-                    #input()
+                    print(hdd_text.value + "Backup Folder" + folder_items)
+                    print(os.path.exists(hdd_text.value + "Backup Folder" + folder_items))
                     while bar:
                         # Need to work out progress track loop to include folders - current code doesn't track folders that are copied over
                         if os.path.exists(hdd_text.value + "Backup Folder" + folder_items):
@@ -200,14 +231,17 @@ def main():
                             pb['value'] += (100 / len(progress_units))
                             bar = False
                     bar = True
+                #fc += 1
                 
             if pb['value'] >= 100:
                 pb.stop()
                 status_text.value = "Backup Complete!"
                 start_button.enable()
                 running = False
+        
+        '''
 
-            
+    #Threading Starting     
     def background():
         thread1 = threading.Thread(target=track_progress)
         thread1.start()
@@ -216,10 +250,10 @@ def main():
         return None
 
 
-    def file_function():
         pass
 
 
+    # Save / Load ini features
     def save_settings():
         config['Backup Destination'] = {}
         config['Backup Destination']['Path'] = hdd_text.value
@@ -236,7 +270,6 @@ def main():
         with open('save.ini', 'w') as configfile:
             config.write(configfile)
 
-
     def load_settings():
         config.read(askopenfilenames())
         hdd_text.show()
@@ -249,12 +282,12 @@ def main():
             dir_1.value = short_file_path(config['Folders To Copy']['Folder 1'])
             dir_2.show()
             close_dir.show()
-            print(folders_to_copy)
+            #print(folders_to_copy)
         if config['Folders To Copy']['Folder 2']:
             folders_to_copy.append(config['Folders To Copy']['Folder 2'])
             dir_2.value = short_file_path(config['Folders To Copy']['Folder 2'])
             dir_3.show()
-            print(folders_to_copy)
+            #print(folders_to_copy)
         if config['Folders To Copy']['Folder 3']:
             folders_to_copy.append(config['Folders To Copy']['Folder 3'])
             dir_3.value = short_file_path(config['Folders To Copy']['Folder 3'])
@@ -283,6 +316,8 @@ def main():
 
     progress_units = []
 
+    folders_to_create = []
+
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
     
@@ -310,7 +345,7 @@ def main():
     #Button to add device where folders will be copied to
     hdd = Picture(box_left, image="./src/folder.png", align="top")
     hdd.hide()
-    hdd_text = Text(box_left, text="folder_selection", align="top")
+    hdd_text = Text(box_left, size=9, text="folder_selection", align="top")
     hdd_text.hide()
     choose_hdd = PushButton(box_left, text="Select Backup Destination", align="top", command=load_show_save_device)
     
