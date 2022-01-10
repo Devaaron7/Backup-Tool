@@ -143,6 +143,33 @@ def main():
     def start_copy():
         
         # Does first run generating the list of files to keep track of the progress when the actual copying happens
+
+        #subprocess.run('cmd "cd {}"'.format(folders_to_copy[0]))
+        #subprocess.run('cmd /c "dir {} /s /b > test.txt"'.format(folders_to_copy[0]))
+
+        work_path = os.getcwd()
+
+        for yea in folders_to_copy:
+
+            
+            os.chdir(yea)
+            subprocess.run('cmd /c "dir /s /b > test.txt"')
+            with open("./test.txt") as a:
+                    inventory.append(a.readlines())
+        
+        os.chdir(work_path)
+
+        print(inventory)
+
+        print(len(inventory))
+
+
+        print(os.getcwd())
+
+        
+
+        input()
+        
         start_button.disable()
         for every_folder_to_copy in folders_to_copy:
             subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup Folder" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
@@ -317,6 +344,8 @@ def main():
     progress_units = []
 
     folders_to_create = []
+
+    inventory = []
 
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
