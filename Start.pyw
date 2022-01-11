@@ -126,9 +126,9 @@ def main():
             start_button.disable()
         
     def clean_results(item):
+            #item.pop(0)
             item.pop(0)
             item.pop(0)
-            item.pop(0)
             item.pop(-1)
             item.pop(-1)
             item.pop(-1)
@@ -139,36 +139,31 @@ def main():
             item.pop(-1)
             item.pop(-1)
             item.pop(-1)
+
+    # Uses "Dir" command to pull names of files in directory and adds them to the "total_files_from_folders" list
+    def folder_audit(lst_of_folders):
+        temp = []
+        for folders in lst_of_folders:
+            os.chdir(folders)
+            #subprocess.run('cmd /c "dir /s /b > file_audit.txt"')
+            subprocess.run('cmd /c "dir /b > file_audit.txt"')
+            with open("./file_audit.txt") as a:
+                temp.append(a.readlines())
+                a.close()
+                os.remove("file_audit.txt")
+
+        for i in temp:
+            for t in i:
+                total_files_from_folders.append(t[0:-1])
+
+        os.chdir(work_path)
+
 
     def start_copy():
         
         # Does first run generating the list of files to keep track of the progress when the actual copying happens
 
-        #subprocess.run('cmd "cd {}"'.format(folders_to_copy[0]))
-        #subprocess.run('cmd /c "dir {} /s /b > test.txt"'.format(folders_to_copy[0]))
-
-        work_path = os.getcwd()
-
-        for yea in folders_to_copy:
-
-            
-            os.chdir(yea)
-            subprocess.run('cmd /c "dir /s /b > test.txt"')
-            with open("./test.txt") as a:
-                    inventory.append(a.readlines())
         
-        os.chdir(work_path)
-
-        print(inventory)
-
-        print(len(inventory))
-
-
-        print(os.getcwd())
-
-        
-
-        input()
         
         start_button.disable()
         for every_folder_to_copy in folders_to_copy:
@@ -187,55 +182,53 @@ def main():
                 progress_units.append(lines.strip())
                 line_count += 1
 
-            files_to_check_progress.append(temp)
+            total_files_to_device.append(temp)
             length_of_each_folder.append(line_count)
         
 
        
 
         for short_paths in folders_to_copy:
-            folders_to_create.append(short_file_path(short_paths))
+            folder_names_to_create.append(short_file_path(short_paths))
         
         
+        # Runs function that adds files into "total_files_from_folders" list
+        folder_audit(folders_to_copy)
+
         input()
 
-        print(folders_to_copy)
+        print("folders_to_copy:", folders_to_copy)
 
         print("-------------------------------------")
 
-        print(folders_to_create)
+        print("folder_names_to_create:", folder_names_to_create)
         
         print("-------------------------------------")
 
-        print(progress_units)
+        print("total_files_to_device:", total_files_to_device)
 
         print("-------------------------------------")
 
-        print(files_to_check_progress)
+        print("total_files_from_folders:", total_files_from_folders)
 
         print("-------------------------------------")
 
-        print(hdd_text.value)
+        print("hdd_text.value:", hdd_text.value)
 
         print("-------------------------------------")
 
-        print(hdd_text.value + "Backup Folder" + folders_to_create[0] + files_to_check_progress[0][0])
 
-        print("-------------------------------------")
+        # Need to get "//testo//" in total_files_to_device to print the same way it appears in total_files_from_folders "testo"
+        print(total_files_to_device[0][6] in total_files_from_folders)
 
-        # Files inside other folders are not showing correct path ex - ln 199 - E://Backup Folder/small files/intel_chipse_9_mb.zip should be E://Backup Folder/small files/testo/intel_chipse_9_mb.zip
-
-        total_list = list(os.walk(hdd_text.value + "Backup Folder"))
-        print( files_to_check_progress[0] in total_list)
-
-        
+        #print(total_files_to_device[0][0])
 
         input()
         
         
         num = 0
         for real_items in folders_to_copy: 
-            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folders_to_create[num]), shell=True)
+            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[num]), shell=True)
             num += 1
         
 
@@ -334,18 +327,24 @@ def main():
     # Create instance of ini
     config = configparser.ConfigParser()
 
+    work_path = os.getcwd()
+
     #List that holds paths to selected folders to copy
     folders_to_copy = []
+
+    total_files_to_device = []
+
+    total_files_from_folders = []
+
+    folder_names_to_create = []
+
+    #####
     
     files_to_check_progress = []
 
     length_of_each_folder = []
 
     progress_units = []
-
-    folders_to_create = []
-
-    inventory = []
 
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
@@ -430,9 +429,22 @@ def main():
                       [ ["Save Settings", save_settings], ["Load Settings", load_settings] ],
                   ])
     
-    
-    
-    
+    '''
+    ##Debug quick settings
+    start_button.enable()
+    hdd.show()
+    hdd_text.show()
+    hdd_text.value = "E://"
+    folders_to_copy.append("C:\\Users\\ATHQ\Desktop\\files to test copy\\small files")
+    dir_1.value = short_file_path("C:\\Users\\ATHQ\Desktop\\files to test copy\\small files")
+    dir_2.show()
+    dir_2.disable()
+    close_dir.show()
+    '''
+
+
+
+
     app.display()
     
 
