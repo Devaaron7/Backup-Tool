@@ -140,13 +140,31 @@ def main():
             item.pop(-1)
             item.pop(-1)
 
+
+    def file_name(file_path):
+        clean_file_names = []
+        clean_file_name = ""
+        for items in file_path:
+            for words in items[::-1]:
+                if words != "\\":
+                    clean_file_name += words
+                else:
+                    break
+            if "//" in clean_file_name:
+                clean_file_names.append("//" + clean_file_name[::-1])
+            else:       
+                clean_file_names.append(clean_file_name[::-1])
+            clean_file_name = ""
+        return clean_file_names
+
+
     # Uses "Dir" command to pull names of files in directory and adds them to the "total_files_from_folders" list
     def folder_audit(lst_of_folders):
         temp = []
         for folders in lst_of_folders:
             os.chdir(folders)
             #subprocess.run('cmd /c "dir /s /b > file_audit.txt"')
-            subprocess.run('cmd /c "dir /b > file_audit.txt"')
+            subprocess.run('cmd /c "dir /b /s > file_audit.txt"')
             with open("./file_audit.txt") as a:
                 temp.append(a.readlines())
                 a.close()
@@ -154,7 +172,10 @@ def main():
 
         for i in temp:
             for t in i:
-                total_files_from_folders.append(t[0:-1])
+                if "." not in t:
+                    total_files_from_folders.append("//" + t[0:-1] + "//")
+                else:
+                    total_files_from_folders.append(t[0:-1])
 
         os.chdir(work_path)
 
@@ -191,7 +212,8 @@ def main():
         for short_paths in folders_to_copy:
             folder_names_to_create.append(short_file_path(short_paths))
         
-        
+
+        '''
         # Runs function that adds files into "total_files_from_folders" list
         folder_audit(folders_to_copy)
 
@@ -219,12 +241,15 @@ def main():
 
 
         # Need to get "//testo//" in total_files_to_device to print the same way it appears in total_files_from_folders "testo"
-        print(total_files_to_device[0][6] in total_files_from_folders)
+        #print(total_files_to_device[0][6] in total_files_from_folders)
 
+        for g in total_files_to_device:
+            for everything in g:
+                print(everything in file_name(total_files_from_folders))
         #print(total_files_to_device[0][0])
 
         input()
-        
+        '''
         
         num = 0
         for real_items in folders_to_copy: 
@@ -236,19 +261,16 @@ def main():
         running = True
         bar = True
         #fc = 0
-        #time.sleep(4)
-        '''
-        print("progress starting")
+        time.sleep(4)
         while running:
-            for folders in files_to_check_progress:
-                for folder_items in folders:
-                    print(hdd_text.value + "Backup Folder" + folder_items)
-                    print(os.path.exists(hdd_text.value + "Backup Folder" + folder_items))
+            for group in total_files_to_device:
+                for folder_items in group:
                     while bar:
-                        # Need to work out progress track loop to include folders - current code doesn't track folders that are copied over
-                        if os.path.exists(hdd_text.value + "Backup Folder" + folder_items):
+                        # file_name(total_files_from_folders) not returning accurate list to drive progress bar - figure out why
+                        if folder_items in file_name(total_files_from_folders):
                             status_text.value = folder_items
                             pb['value'] += (100 / len(progress_units))
+                            time.sleep(2)
                             bar = False
                     bar = True
                 #fc += 1
@@ -257,9 +279,9 @@ def main():
                 pb.stop()
                 status_text.value = "Backup Complete!"
                 start_button.enable()
-                running = False
+                #running = False
+            
         
-        '''
 
     #Threading Starting     
     def background():
@@ -302,6 +324,7 @@ def main():
             dir_1.value = short_file_path(config['Folders To Copy']['Folder 1'])
             dir_2.show()
             close_dir.show()
+            start_button.enable()
             #print(folders_to_copy)
         if config['Folders To Copy']['Folder 2']:
             folders_to_copy.append(config['Folders To Copy']['Folder 2'])
