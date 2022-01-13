@@ -188,7 +188,7 @@ def main():
         
         start_button.disable()
         for every_folder_to_copy in folders_to_copy:
-            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup Folder" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
+            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup_Folder" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
             
             with open("./result.txt") as f:
                 file_status = f.readlines()
@@ -213,9 +213,11 @@ def main():
             folder_names_to_create.append(short_file_path(short_paths))
         
 
+        folder_audit(folders_to_copy)
+
         '''
         # Runs function that adds files into "total_files_from_folders" list
-        folder_audit(folders_to_copy)
+        
 
         input()
 
@@ -252,36 +254,88 @@ def main():
         '''
         
         num = 0
+
+        if os.path.isdir(hdd_text.value + "Backup_Folder/") == False:
+            os.mkdir(hdd_text.value + "Backup_Folder")
+            time.sleep(1)
+
+        
         for real_items in folders_to_copy: 
-            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[num]), shell=True)
+            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup_Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}Backup_Folder/result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[num]), shell=True)
             num += 1
         
+        #print(total_files_from_folders)
 
-    def track_progress():
+    '''
+    def track_progress_old():
+        time.sleep(4)
         running = True
         bar = True
+        units = 100 / len(progress_units)
+        #print(round(units))
+        #input()
         #fc = 0
-        time.sleep(4)
         while running:
             for group in total_files_to_device:
+                print(group)
+                input()
                 for folder_items in group:
+                    #print(folder_items)
+                    #print(file_name(total_files_from_folders))
+                    #print(total_files_from_folders)
+                    #print(folder_items in file_name(total_files_from_folders))
+                    #input()
                     while bar:
                         # file_name(total_files_from_folders) not returning accurate list to drive progress bar - figure out why
                         if folder_items in file_name(total_files_from_folders):
                             status_text.value = folder_items
-                            pb['value'] += (100 / len(progress_units))
-                            time.sleep(2)
+                            pb['value'] += units
+                            time.sleep(1)
                             bar = False
                     bar = True
-                #fc += 1
+                    #fc += 1
                 
             if pb['value'] >= 100:
                 pb.stop()
                 status_text.value = "Backup Complete!"
                 start_button.enable()
-                #running = False
-            
-        
+                running = False
+    '''   
+
+    def track_progress():
+        time.sleep(4)
+        running = True
+        bar = True
+        units = 100 / len(progress_units)
+        #print(round(units))
+        #input()
+        #fc = 0
+        while running:
+            for group in total_files_to_device:
+                print(group)
+                input()
+                for folder_items in group:
+                    #print(folder_items)
+                    #print(file_name(total_files_from_folders))
+                    #print(total_files_from_folders)
+                    #print(folder_items in file_name(total_files_from_folders))
+                    #input()
+                    while bar:
+                        # file_name(total_files_from_folders) not returning accurate list to drive progress bar - figure out why
+                        if folder_items in file_name(total_files_from_folders):
+                            status_text.value = folder_items
+                            pb['value'] += units
+                            time.sleep(1)
+                            bar = False
+                    bar = True
+                    #fc += 1
+                
+            #if pb['value'] >= 100:
+            if pb['value'] >= 100:
+                pb.stop()
+                status_text.value = "Backup Complete!"
+                start_button.enable()
+                running = False 
 
     #Threading Starting     
     def background():
@@ -441,7 +495,7 @@ def main():
     
     
     # add a progress bar to the box
-    pb = Progressbar(box_bottom_progress.tk, length=500)
+    pb = Progressbar(box_bottom_progress.tk, length=500, mode = 'indeterminate')
     box_bottom_progress.add_tk_widget(pb)
     
     
