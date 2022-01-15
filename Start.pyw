@@ -9,7 +9,7 @@ import time
 import subprocess
 import os.path
 import configparser
-
+from shutil import copyfile
 
 def main():
     
@@ -182,15 +182,22 @@ def main():
 
     def start_copy():
         
+        status_text.value = "Copying Files..."
+        folder_names_to_create.clear()
+        pb.start()
         # Does first run generating the list of files to keep track of the progress when the actual copying happens
 
-        
+        if os.path.isdir(hdd_text.value + "Backup_Folder/") == False:
+            os.mkdir(hdd_text.value + "Backup_Folder")
+            time.sleep(1)
         
         start_button.disable()
         for every_folder_to_copy in folders_to_copy:
-            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup_Folder" /e /np /xo /ns /nc /tee /njh /l /log:result.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
+            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup_Folder" /e /np /xo /ns /nc /tee /njh /l /log:{source}Backup_Folder/check.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
             
-            with open("./result.txt") as f:
+            #time.sleep(2)
+
+            with open("{source}Backup_Folder/check.txt".format(source = hdd_text.value)) as f:
                 file_status = f.readlines()
             
             clean_results(file_status)
@@ -255,15 +262,22 @@ def main():
         
         num = 0
 
-        if os.path.isdir(hdd_text.value + "Backup_Folder/") == False:
-            os.mkdir(hdd_text.value + "Backup_Folder")
-            time.sleep(1)
-
+        
+        if os.path.exists("{source}Backup_Folder/result.txt".format(source = hdd_text.value)):
+            os.remove("{source}Backup_Folder/result.txt".format(source = hdd_text.value))
         
         for real_items in folders_to_copy: 
-            subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup_Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}Backup_Folder/result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[num]), shell=True)
+            #subprocess.Popen('cmd /c "robocopy "{folder}" "{source}Backup_Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}Backup_Folder/result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[num]), shell=True)
+            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup_Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}Backup_Folder/result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[num]), shell=True)
+
             num += 1
         
+        start_button.enable()
+        status_text.value = "Backup Complete!" 
+        copyfile("{source}Backup_Folder/result.txt".format(source = hdd_text.value), "{source}Backup_Folder/copy_result.txt".format(source = hdd_text.value))
+        os.remove("{source}Backup_Folder/check.txt".format(source = hdd_text.value))
+        os.remove("{source}Backup_Folder/result.txt".format(source = hdd_text.value))
+        pb.stop()
         #print(total_files_from_folders)
 
     '''
@@ -302,48 +316,48 @@ def main():
                 running = False
     '''   
 
+    '''
     def track_progress():
-        time.sleep(4)
+        #pass
+        #time.sleep(2)
+        #print(total_files_to_device[-1][-1])
+        
         running = True
-        bar = True
-        units = 100 / len(progress_units)
-        #print(round(units))
-        #input()
-        #fc = 0
+        status_text.value = "Copying Files..."
+        if os.path.exists("{source}Backup_Folder/check.txt".format(source = hdd_text.value)):
+            os.remove("{source}Backup_Folder/check.txt".format(source = hdd_text.value))
+        pb.start()
+
+        time.sleep(3)
+        print(len(total_files_to_device[0]))
+        print(total_files_to_device[-1])
+
         while running:
-            for group in total_files_to_device:
-                print(group)
-                input()
-                for folder_items in group:
-                    #print(folder_items)
-                    #print(file_name(total_files_from_folders))
-                    #print(total_files_from_folders)
-                    #print(folder_items in file_name(total_files_from_folders))
-                    #input()
-                    while bar:
-                        # file_name(total_files_from_folders) not returning accurate list to drive progress bar - figure out why
-                        if folder_items in file_name(total_files_from_folders):
-                            status_text.value = folder_items
-                            pb['value'] += units
-                            time.sleep(1)
-                            bar = False
-                    bar = True
-                    #fc += 1
-                
-            #if pb['value'] >= 100:
-            if pb['value'] >= 100:
-                pb.stop()
-                status_text.value = "Backup Complete!"
-                start_button.enable()
-                running = False 
+
+            if os.path.exists("{source}Backup_Folder/result.txt".format(source = hdd_text.value)):
+                check_file = open("{source}Backup_Folder/result.txt".format(source = hdd_text.value), "r")
+
+                for file_names in total_files_to_device[0]:
+                    if file_names in check_file.read():
+                        pb.stop()
+                        status_text.value = "Backup Complete!"
+                        start_button.enable()
+                        running = False 
+                    else:
+                        pass
+
+            else:
+                pass
+    '''        
+
 
     #Threading Starting     
     def background():
-        thread1 = threading.Thread(target=track_progress)
+        thread1 = threading.Thread(target=start_copy)
         thread1.start()
-        thread2 = threading.Thread(target=start_copy)
-        thread2.start()
-        return None
+        #thread2 = threading.Thread(target=start_copy)
+        #thread2.start()
+        #return None
 
 
         pass
