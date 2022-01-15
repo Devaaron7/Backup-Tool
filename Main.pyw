@@ -1,7 +1,7 @@
 from tkinter.constants import TRUE
 from typing import Counter
 from guizero import App, Box, PushButton, TextBox, Picture, Window, Text, MenuBar
-from tkinter.filedialog import askopenfilenames, askdirectory
+from tkinter.filedialog import askopenfilenames, askdirectory, asksaveasfile
 from tkinter.ttk import Progressbar
 import os
 import threading
@@ -124,112 +124,38 @@ def main():
             start_button.enable()
         else:
             start_button.disable()
-        
-    def clean_results(item):
-            item.pop(0)
-            item.pop(0)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
-            item.pop(-1)
+      
 
-
-    def file_name(file_path):
-        clean_file_names = []
-        clean_file_name = ""
-        for items in file_path:
-            for words in items[::-1]:
-                if words != "\\":
-                    clean_file_name += words
-                else:
-                    break
-            if "//" in clean_file_name:
-                clean_file_names.append("//" + clean_file_name[::-1])
-            else:       
-                clean_file_names.append(clean_file_name[::-1])
-            clean_file_name = ""
-        return clean_file_names
-
-
-    # Uses "Dir" command to pull names of files in directory and adds them to the "total_files_from_folders" list
-    def folder_audit(lst_of_folders):
-        temp = []
-        for folders in lst_of_folders:
-            os.chdir(folders)
-            subprocess.run('cmd /c "dir /b /s > file_audit.txt"')
-            with open("./file_audit.txt") as a:
-                temp.append(a.readlines())
-                a.close()
-                os.remove("file_audit.txt")
-
-        for i in temp:
-            for t in i:
-                if "." not in t:
-                    total_files_from_folders.append("//" + t[0:-1] + "//")
-                else:
-                    total_files_from_folders.append(t[0:-1])
-
-        os.chdir(work_path)
-
-
+    # Starts the main copy feature
     def start_copy():
-        
+        box_bottom_progress.show()
+        status_text.show()
+        start_button.disable()
         status_text.value = "Copying Files..."
         folder_names_to_create.clear()
         pb.start()
-        # Does first run generating the list of files to keep track of the progress when the actual copying happens
 
+        # Creates root "Backup_Folder" on directory selected
         if os.path.isdir(hdd_text.value + "Backup_Folder/") == False:
             os.mkdir(hdd_text.value + "Backup_Folder")
             time.sleep(1)
         
-        start_button.disable()
-        for every_folder_to_copy in folders_to_copy:
-            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup_Folder" /e /np /xo /ns /nc /tee /njh /l /log:{source}Backup_Folder/check.txt"'.format(folder = every_folder_to_copy, source = hdd_text.value), shell=True)
-            
-            with open("{source}Backup_Folder/check.txt".format(source = hdd_text.value)) as f:
-                file_status = f.readlines()
-            
-            clean_results(file_status)
-
-            line_count = 0
-            temp = []
-            for lines in file_status:
-                temp.append(short_file_path(lines.strip()))
-                progress_units.append(lines.strip())
-                line_count += 1
-
-            total_files_to_device.append(temp)
-            length_of_each_folder.append(line_count)
-        
+       # Creates list of subfolders to create on destination folder
         for short_paths in folders_to_copy:
             folder_names_to_create.append(short_file_path(short_paths))
         
-
-        folder_audit(folders_to_copy)
-        
-        if os.path.exists("{source}Backup_Folder/result.txt".format(source = hdd_text.value)):
-            os.remove("{source}Backup_Folder/result.txt".format(source = hdd_text.value))
-
-
-        
-        num = 0
+       
+        create_num = 0
         for real_items in folders_to_copy: 
-            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup_Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}Backup_Folder/result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[num]), shell=True)
-            num += 1
+            subprocess.run('cmd /c "robocopy "{folder}" "{source}Backup_Folder{copy_folder}" /e /np /xo /ns /nc /tee /njh /log+:{source}Backup_Folder/result.txt"'.format(folder = real_items, source = hdd_text.value, copy_folder = folder_names_to_create[create_num]), shell=True)
+            create_num += 1
         
 
         start_button.enable()
         status_text.value = "Backup Complete!" 
 
         copyfile("{source}Backup_Folder/result.txt".format(source = hdd_text.value), "{source}Backup_Folder/copy_result.txt".format(source = hdd_text.value))
-        os.remove("{source}Backup_Folder/check.txt".format(source = hdd_text.value))
+        #os.remove("{source}Backup_Folder/check.txt".format(source = hdd_text.value))
         os.remove("{source}Backup_Folder/result.txt".format(source = hdd_text.value))
         pb.stop()
         
@@ -254,8 +180,12 @@ def main():
                 config['Folders To Copy']['Folder {}'.format(folder_num)] = folders_to_copy[saves]
                 folder_num += 1
         
-        with open('save.ini', 'w') as configfile:
-            config.write(configfile)
+
+        save_ini = asksaveasfile(mode='w', defaultextension=".ini")
+        if save_ini is None:  # asksaveasfile return `None` if dialog closed with "cancel".
+            return
+
+        config.write(save_ini)
 
     def load_settings():
         config.read(askopenfilenames())
@@ -269,15 +199,11 @@ def main():
             dir_1.value = short_file_path(config['Folders To Copy']['Folder 1'])
             dir_2.show()
             close_dir.show()
-            start_button.enable()
-            
-
+            start_button.enable()  
         if config['Folders To Copy']['Folder 2']:
             folders_to_copy.append(config['Folders To Copy']['Folder 2'])
             dir_2.value = short_file_path(config['Folders To Copy']['Folder 2'])
-            dir_3.show()
-            
-
+            dir_3.show()  
         if config['Folders To Copy']['Folder 3']:
             folders_to_copy.append(config['Folders To Copy']['Folder 3'])
             dir_3.value = short_file_path(config['Folders To Copy']['Folder 3'])
@@ -294,27 +220,13 @@ def main():
             print(folders_to_copy)
         
     
-    # Create instance of ini
+    # Create instance of ini module
     config = configparser.ConfigParser()
-
-    work_path = os.getcwd()
 
     #List that holds paths to selected folders to copy
     folders_to_copy = []
 
-    total_files_to_device = []
-
-    total_files_from_folders = []
-
     folder_names_to_create = []
-
-    #####
-    
-    files_to_check_progress = []
-
-    length_of_each_folder = []
-
-    progress_units = []
 
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
@@ -337,18 +249,15 @@ def main():
     # Splits the bottom portion into two parts - One for Status Text & One for the Progress bar
     box_bottom_progress = Box(box_bottom_row, width="fill", align="bottom", border=True)
     box_bottom_status = Box(box_bottom_row, width="fill", align="bottom")
-    
 
-    
-    #Button to add device where folders will be copied to
-    hdd = Picture(box_left, image="./src/folder.png", align="top")
-    hdd.hide()
-    hdd_text = Text(box_left, size=9, text="folder_selection", align="top")
-    hdd_text.hide()
-    choose_hdd = PushButton(box_left, text="Select Backup Destination", align="top", command=load_show_save_device)
-    
-   
-    
+    # Adds a progress bar to the box
+    pb = Progressbar(box_bottom_progress.tk, length=500, mode = 'indeterminate')
+    box_bottom_progress.add_tk_widget(pb)
+    box_bottom_progress.hide()
+
+    #Status Text
+    status_text = Text(box_bottom_status, size=9, text="This will show the current files being transfered")
+    status_text.hide()
     
     #Display of folder paths in the GUI - Programming 5 folders max
     dir_1 = TextBox(box_right, text="", width=20, align="top")
@@ -369,6 +278,17 @@ def main():
     dir_5 = TextBox(box_right, text="", width=20)
     dir_5.disable()
     dir_5.hide()
+
+
+    #Button Groups -------------------------------------------------------------------------------------
+
+    
+    #Button to add device where folders will be copied to
+    hdd = Picture(box_left, image="./src/folder.png", align="top")
+    hdd.hide()
+    hdd_text = Text(box_left, size=9, text="folder_selection", align="top")
+    hdd_text.hide()
+    choose_hdd = PushButton(box_left, text="Select Backup Destination", align="top", command=load_show_save_device)
     
     #Button to add folders to copy list
     box_bottom_row_buttons = Box(box_right, width=50, height=25,  align="top", border=False)
@@ -376,20 +296,9 @@ def main():
     close_dir = PushButton(box_bottom_row_buttons, image="./src/close.png", command=remove_folder, align="right")
     close_dir.hide()
     
-    
-    #Start Copy Button
-    #start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
-    #start_button = PushButton(box_bottom_status, text="Start", align="top", command=start_copy)
+    #Start Button
     start_button = PushButton(box_bottom_status, text="Start", align="top", command=background)
     start_button.disable()
-    
-    #Status Text
-    status_text = Text(box_bottom_status, size=9, text="This will show the current files being transfered")
-    
-    
-    # add a progress bar to the box
-    pb = Progressbar(box_bottom_progress.tk, length=500, mode = 'indeterminate')
-    box_bottom_progress.add_tk_widget(pb)
     
     
     # Menu Items
