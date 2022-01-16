@@ -155,7 +155,6 @@ def main():
         status_text.value = "Backup Complete!" 
 
         copyfile("{source}Backup_Folder/result.txt".format(source = hdd_text.value), "{source}Backup_Folder/copy_result.txt".format(source = hdd_text.value))
-        #os.remove("{source}Backup_Folder/check.txt".format(source = hdd_text.value))
         os.remove("{source}Backup_Folder/result.txt".format(source = hdd_text.value))
         pb.stop()
         
@@ -230,7 +229,8 @@ def main():
 
     #Gui Frame Start Section -------------------------------------------------------------------------------------
     app = App(title="Backup Tool", width=500, height=250, bg="white")
-    
+
+    app.tk.iconbitmap("./icons/disk.ico")
     
     # Splits The GUI into Two Parts
     box_top_row = Box(app, width="fill", height="fill",  align="top")
@@ -284,7 +284,7 @@ def main():
 
     
     #Button to add device where folders will be copied to
-    hdd = Picture(box_left, image="./src/folder.png", align="top")
+    hdd = Picture(box_left, image="./icons/folder.png", align="top")
     hdd.hide()
     hdd_text = Text(box_left, size=9, text="folder_selection", align="top")
     hdd_text.hide()
@@ -292,8 +292,8 @@ def main():
     
     #Button to add folders to copy list
     box_bottom_row_buttons = Box(box_right, width=50, height=25,  align="top", border=False)
-    select_dir = PushButton(box_bottom_row_buttons, image="./src/plus.png", command=add_folder1, align="right")
-    close_dir = PushButton(box_bottom_row_buttons, image="./src/close.png", command=remove_folder, align="right")
+    select_dir = PushButton(box_bottom_row_buttons, image="./icons/plus.png", command=add_folder1, align="right")
+    close_dir = PushButton(box_bottom_row_buttons, image="./icons/close.png", command=remove_folder, align="right")
     close_dir.hide()
     
     #Start Button
