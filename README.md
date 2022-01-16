@@ -38,3 +38,15 @@ You can use the save / load options, under the file menu, to save your settings 
 Thank you for downloading!
 
 Aaron T
+
+"-" & "+" Icon Info:
+<div>Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+
+"Folder" Icon Info:
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+
+"Floppy Disk" Icon Info:
+<a href="https://www.flaticon.com/free-icons/floppy-disk" title="floppy disk icons">Floppy disk icons created by Freepik - Flaticon</a>
+
